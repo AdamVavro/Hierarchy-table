@@ -1,61 +1,71 @@
-import React, { useState } from "react";
-import TableRow from "./TableRow";
-import data from "../data/exampleData.json";
-import "../styles/table.css";
+import React, { useState, useEffect } from "react";
+import "./../styles/table.css";
+import Row from "./TableRow";
+import exampleData from "../data/exampleData.json"; // Sem importujeme JSON
+import { DataItem } from "../types"; // Importujeme interface
+
+const transformData = (data: any) => {
+  return data.map((item: any) => ({
+    id: Number(item.data.ID), // Premenujeme ID
+    name: item.data["Name"], // Oprava názvov s medzerami
+    gender: item.data["Gender"],
+    ability: item.data["Ability"],
+    minimalDistance: item.data["Minimal distance"],
+    weight: item.data["Weight"],
+    born: item.data["Born"],
+    inSpaceSince: item.data["In space since"],
+    beerConsumption: item.data["Beer consumption (l/y)"],
+    knowsTheAnswer: item.data["Knows the answer?"] === "true",
+    children: extractChildren(item.children) // Správne extrahujeme deti
+  }));
+};
+
+const extractChildren = (childrenObj: any) => {
+  if (!childrenObj) return [];
+  let childrenArray: any[] = [];
+  Object.values(childrenObj).forEach((relation: any) => {
+    if (relation.records) {
+      childrenArray.push(...transformData(relation.records));
+    }
+  });
+  return childrenArray;
+};
+
+
 
 const Table: React.FC = () => {
-  const [tableData, setTableData] = useState(data);
+  const [data, setData] = useState<DataItem[]>(transformData(exampleData));
 
-  // Získame všetky unikátne kľúče zo všetkých záznamov
-  const extractKeys = (items: any[]): string[] => {
-    const keys = new Set<string>();
-    const findKeys = (obj: any) => {
-      Object.keys(obj.data).forEach((key) => keys.add(key));
-      if (obj.children) {
-        Object.values(obj.children).forEach((childGroup: any) => {
-          childGroup.records.forEach(findKeys);
-        });
-      }
-    };
-    items.forEach(findKeys);
-    return Array.from(keys);
-  };
-
-  const columns = extractKeys(tableData);
-
-  // Odstránenie riadka (rekurzívne)
-  const handleDelete = (id: string) => {
-    const deleteRecursively = (items: any[]) =>
-      items.filter((item) => {
-        if (item.data.ID === id) return false;
-        if (item.children) {
-          Object.keys(item.children).forEach((key) => {
-            item.children[key].records = deleteRecursively(item.children[key].records);
-          });
-        }
-        return true;
-      });
-
-    setTableData(deleteRecursively(tableData));
+  const handleDelete = (id: number) => {
+    const newData = data.filter((item: DataItem) => item.id !== id);
+    setData(newData);
   };
 
   return (
-    <table className="hierarchy-table">
+    <table className="custom-table">
       <thead>
         <tr>
-          {columns.map((col) => (
-            <th key={col}>{col}</th>
-          ))}
-          <th>Actions</th>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Gender</th>
+          <th>Ability</th>
+          <th>Minimal Distance</th>
+          <th>Weight</th>
+          <th>Born</th>
+          <th>In space since</th>
+          <th>Beer consumption (l/y)</th>
+          <th>Knows the answer?</th>
+          <th>Delete</th>
         </tr>
       </thead>
       <tbody>
-        {tableData.map((item) => (
-          <TableRow key={item.data.ID} item={item} columns={columns} onDelete={handleDelete} />
+          {data.map((item: DataItem) => (
+          <Row key={item.id} item={item} onDelete={handleDelete} />
         ))}
       </tbody>
     </table>
   );
 };
+
 
 export default Table;

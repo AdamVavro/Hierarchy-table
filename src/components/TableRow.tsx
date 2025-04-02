@@ -1,36 +1,40 @@
 import React, { useState } from "react";
+import { RowProps } from "../types"; // Importujeme interface
 
-interface TableRowProps {
-  item: any;
-  columns: string[];
-  onDelete: (id: string) => void;
-}
-
-const TableRow: React.FC<TableRowProps> = ({ item, columns, onDelete }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const Row: React.FC<RowProps> = ({ item, onDelete }) => {
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <>
-      <tr>
-        {columns.map((col) => (
-          <td key={col}>{item.data[col] || "-"}</td>
-        ))}
-        <td>
-          <button onClick={() => setIsExpanded(!isExpanded)}>
-            {isExpanded ? "Hide" : "Show"}
-          </button>
-          <button onClick={() => onDelete(item.data.ID)}>Delete</button>
-        </td>
+      <tr className="parent-row">
+        <td onClick={() => setExpanded(!expanded)}>{expanded ? "▼" : "▶"}</td>
+        <td>{item.name}</td>
+        <td>{item.gender}</td>
+        <td>{item.ability}</td>
+        <td>{item.minimalDistance}</td>
+        <td>{item.weight}</td>
+        <td>{item.born}</td>
+        <td>{item.inSpaceSince}</td>
+        <td>{item.beerConsumption}</td>
+        <td>{item.knowsTheAnswer ? "✔" : "✖"}</td>
+        <td className="delete-btn" onClick={() => onDelete(item.id)}>✖</td>
       </tr>
-      {isExpanded &&
-        item.children &&
-        Object.keys(item.children).map((key) =>
-          item.children[key].records.map((child: any) => (
-            <TableRow key={child.data.ID} item={child} columns={columns} onDelete={onDelete} />
-          ))
-        )}
+      {expanded && item.children.length > 0 && (
+        <tr className="child-row">
+          <td colSpan={11}>
+            <table>
+              <tbody>
+                {item.children.map((child: any) => (
+                  <Row key={child.id} item={child} onDelete={onDelete} />
+                ))}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      )}
     </>
   );
 };
 
-export default TableRow;
+
+export default Row;
