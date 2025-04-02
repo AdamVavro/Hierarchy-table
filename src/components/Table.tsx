@@ -45,6 +45,7 @@ const Table: React.FC = () => {
     <table className="custom-table">
       <thead>
         <tr>
+          <th></th>
           <th>ID</th>
           <th>Name</th>
           <th>Gender</th>

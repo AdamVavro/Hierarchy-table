@@ -8,6 +8,7 @@ const Row: React.FC<RowProps> = ({ item, onDelete }) => {
     <>
       <tr className="parent-row">
         <td onClick={() => setExpanded(!expanded)}>{expanded ? "▼" : "▶"}</td>
+        <td>{item.id}</td>
         <td>{item.name}</td>
         <td>{item.gender}</td>
         <td>{item.ability}</td>
