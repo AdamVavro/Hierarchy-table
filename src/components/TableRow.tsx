@@ -4,28 +4,33 @@ import { RowProps } from "../types"; // Importujeme interface
 const Row: React.FC<RowProps> = ({ item, onDelete }) => {
   const [expanded, setExpanded] = useState(false);
 
+  const dataEntries = Object.entries(item.data);
+
   return (
     <>
       <tr className="parent-row">
         <td onClick={() => setExpanded(!expanded)}>{expanded ? "▼" : "▶"}</td>
-        <td>{item.id}</td>
-        <td>{item.name}</td>
-        <td>{item.gender}</td>
-        <td>{item.ability}</td>
-        <td>{item.minimalDistance}</td>
-        <td>{item.weight}</td>
-        <td>{item.born}</td>
-        <td>{item.inSpaceSince}</td>
-        <td>{item.beerConsumption}</td>
-        <td>{item.knowsTheAnswer ? "✔" : "✖"}</td>
+        {dataEntries.map(([key, value]) => (
+          <td key={key}>{value}</td>
+        ))}
         <td className="delete-btn" onClick={() => onDelete(item.id)}>✖</td>
       </tr>
+
       {expanded && item.children.length > 0 && (
         <tr className="child-row">
-          <td colSpan={11}>
+          <td colSpan={dataEntries.length + 2}>
             <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  {Object.keys(item.children[0].data).map((key) => (
+                    <th key={key}>{key}</th>
+                  ))}
+                  <th>Delete</th>
+                </tr>
+              </thead>
               <tbody>
-                {item.children.map((child: any) => (
+                {item.children.map((child) => (
                   <Row key={child.id} item={child} onDelete={onDelete} />
                 ))}
               </tbody>
@@ -36,6 +41,7 @@ const Row: React.FC<RowProps> = ({ item, onDelete }) => {
     </>
   );
 };
+
 
 
 export default Row;

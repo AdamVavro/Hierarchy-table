@@ -2,42 +2,33 @@ import React, { useState, useEffect } from "react";
 import "./../styles/table.css";
 import Row from "./TableRow";
 import exampleData from "../data/exampleData.json"; // Sem importujeme JSON
-import { DataItem } from "../types"; // Importujeme interface
+import { GenericDataItem } from "../types"; // Importujeme interface
 
-const transformData = (data: any) => {
-  return data.map((item: any) => ({
-    id: Number(item.data.ID), // Premenujeme ID
-    name: item.data["Name"], // Oprava názvov s medzerami
-    gender: item.data["Gender"],
-    ability: item.data["Ability"],
-    minimalDistance: item.data["Minimal distance"],
-    weight: item.data["Weight"],
-    born: item.data["Born"],
-    inSpaceSince: item.data["In space since"],
-    beerConsumption: item.data["Beer consumption (l/y)"],
-    knowsTheAnswer: item.data["Knows the answer?"] === "true",
-    children: extractChildren(item.children) // Správne extrahujeme deti
-  }));
-};
-
-const extractChildren = (childrenObj: any) => {
-  if (!childrenObj) return [];
-  let childrenArray: any[] = [];
-  Object.values(childrenObj).forEach((relation: any) => {
-    if (relation.records) {
-      childrenArray.push(...transformData(relation.records));
-    }
+const transformData = (data: any[]): GenericDataItem[] => {
+  const parseItem = (item: any): GenericDataItem => ({
+    id: Number(item.data.ID),
+    data: item.data,
+    children: extractChildren(item.children),
   });
-  return childrenArray;
+
+  const extractChildren = (childrenObj: any): GenericDataItem[] => {
+    if (!childrenObj) return [];
+
+    return Object.values(childrenObj).flatMap((rel: any) =>
+      rel.records.map(parseItem)
+    );
+  };
+
+  return data.map(parseItem);
 };
 
 
 
 const Table: React.FC = () => {
-  const [data, setData] = useState<DataItem[]>(transformData(exampleData));
+  const [data, setData] = useState<GenericDataItem[]>(transformData(exampleData));
 
   const handleDelete = (id: number) => {
-    const newData = data.filter((item: DataItem) => item.id !== id);
+    const newData = data.filter((item: GenericDataItem) => item.id !== id);
     setData(newData);
   };
 
@@ -60,7 +51,7 @@ const Table: React.FC = () => {
         </tr>
       </thead>
       <tbody>
-          {data.map((item: DataItem) => (
+          {data.map((item: GenericDataItem) => (
           <Row key={item.id} item={item} onDelete={handleDelete} />
         ))}
       </tbody>
