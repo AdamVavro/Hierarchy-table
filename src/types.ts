@@ -7,4 +7,6 @@ export interface GenericDataItem {
 export interface RowProps {
   item: GenericDataItem;
   onDelete: (id: number) => void;
+  depth: number;
+  rowIndex: number;
 }

@@ -19,7 +19,18 @@ const transformData = (data: any[]): GenericDataItem[] => {
     );
   };
 
-  return data.map(parseItem);
+  // Odstráni duplicity podľa ID (ponechá prvý výskyt)
+  const uniqueDataById = (items: any[]) => {
+    const seen = new Set();
+    return items.filter((item) => {
+      const id = item.data.ID;
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  };
+
+  return uniqueDataById(data).map(parseItem);
 };
 
 
@@ -27,9 +38,18 @@ const transformData = (data: any[]): GenericDataItem[] => {
 const Table: React.FC = () => {
   const [data, setData] = useState<GenericDataItem[]>(transformData(exampleData));
 
+  // Rekurzívne odstráni položku aj všetky jej potomky
   const handleDelete = (id: number) => {
-    const newData = data.filter((item: GenericDataItem) => item.id !== id);
-    setData(newData);
+    const deleteRecursive = (items: GenericDataItem[]): GenericDataItem[] => {
+      return items
+        .filter((item) => item.id !== id)
+        .map((item) => ({
+          ...item,
+          children: deleteRecursive(item.children),
+        }));
+    };
+
+    setData((prevData) => deleteRecursive(prevData));
   };
 
   return (
@@ -51,8 +71,8 @@ const Table: React.FC = () => {
         </tr>
       </thead>
       <tbody>
-          {data.map((item: GenericDataItem) => (
-          <Row key={item.id} item={item} onDelete={handleDelete} />
+          {data.map((item: GenericDataItem, index: number) => (
+          <Row key={`${item.id}-0`} item={item} onDelete={handleDelete} depth={0} rowIndex={index}/>
         ))}
       </tbody>
     </table>
