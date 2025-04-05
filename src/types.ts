@@ -2,6 +2,7 @@ export interface GenericDataItem {
   id: number;
   data: Record<string, string>;
   children: GenericDataItem[];
+  relationName?: string;
 }
 
 export interface RowProps {
@@ -10,4 +11,5 @@ export interface RowProps {
   depth: number;
   rowIndex: number;
   expandAll: boolean;
+  relationName?: string;
 }

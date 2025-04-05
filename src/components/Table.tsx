@@ -5,16 +5,20 @@ import exampleData from "../data/exampleData.json";
 import { GenericDataItem } from "../types";
 
 const transformData = (data: any[]): GenericDataItem[] => {
-  const parseItem = (item: any): GenericDataItem => ({
-    id: Number(item.data.ID),
-    data: item.data,
-    children: extractChildren(item.children),
-  });
+  const parseItem = (item: any, relationName: string = "root"): GenericDataItem => {
+    return {
+      id: Number(item.data.ID),
+      data: item.data,
+      children: extractChildren(item.children),
+      relationName,
+    };
+  };
 
   const extractChildren = (childrenObj: any): GenericDataItem[] => {
     if (!childrenObj) return [];
-    return Object.values(childrenObj).flatMap((rel: any) =>
-      rel.records.map(parseItem)
+
+    return Object.entries(childrenObj).flatMap(([relationName, rel]: any) =>
+      rel.records.map((record: any) => parseItem(record, relationName))
     );
   };
 
@@ -28,7 +32,7 @@ const transformData = (data: any[]): GenericDataItem[] => {
     });
   };
 
-  return uniqueDataById(data).map(parseItem);
+  return uniqueDataById(data).map((item) => parseItem(item));
 };
 
 const Table: React.FC = () => {

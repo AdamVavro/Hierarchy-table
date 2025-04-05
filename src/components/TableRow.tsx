@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { RowProps } from "../types";
 
+
 const Row: React.FC<RowProps> = ({ item, onDelete, depth, rowIndex, expandAll }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -18,8 +19,20 @@ const Row: React.FC<RowProps> = ({ item, onDelete, depth, rowIndex, expandAll })
         <td
           onClick={() => hasChildren && setExpanded(!expanded)}
           style={{ cursor: hasChildren ? "pointer" : "default" }}
+          className="expand-td"
+          title={
+            hasChildren
+              ? item.relationName === "root"
+                ? "Show nemesis"
+                : item.relationName === "has_nemesis"
+                ? "Show secret"
+                : ""
+              : ""
+          }
         >
-          {hasChildren ? (expanded ? "▼" : "▶") : ""}
+           <span className="expand-arrow">
+            {hasChildren ? (expanded ? "▼" : "▶") : ""}
+          </span>
         </td>
         {dataEntries.map(([key, value]) => (
           <td key={key}>{value}</td>
@@ -49,6 +62,7 @@ const Row: React.FC<RowProps> = ({ item, onDelete, depth, rowIndex, expandAll })
                     depth={depth + 1}
                     rowIndex={rowIndex}
                     expandAll={expandAll}
+                    relationName={child.relationName}
                   />
                 ))}
               </tbody>

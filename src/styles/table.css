@@ -68,4 +68,6 @@ body {
   color: white;
 }
 
-
+.expand-td:hover .expand-arrow {
+  color: black;
+}
