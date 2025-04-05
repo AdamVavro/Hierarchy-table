@@ -9,4 +9,5 @@ export interface RowProps {
   onDelete: (id: number) => void;
   depth: number;
   rowIndex: number;
+  expandAll: boolean;
 }

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./../styles/table.css";
 import Row from "./TableRow";
-import exampleData from "../data/exampleData.json"; // Sem importujeme JSON
-import { GenericDataItem } from "../types"; // Importujeme interface
+import exampleData from "../data/exampleData.json";
+import { GenericDataItem } from "../types";
 
 const transformData = (data: any[]): GenericDataItem[] => {
   const parseItem = (item: any): GenericDataItem => ({
@@ -13,13 +13,11 @@ const transformData = (data: any[]): GenericDataItem[] => {
 
   const extractChildren = (childrenObj: any): GenericDataItem[] => {
     if (!childrenObj) return [];
-
     return Object.values(childrenObj).flatMap((rel: any) =>
       rel.records.map(parseItem)
     );
   };
 
-  // Odstráni duplicity podľa ID (ponechá prvý výskyt)
   const uniqueDataById = (items: any[]) => {
     const seen = new Set();
     return items.filter((item) => {
@@ -33,12 +31,10 @@ const transformData = (data: any[]): GenericDataItem[] => {
   return uniqueDataById(data).map(parseItem);
 };
 
-
-
 const Table: React.FC = () => {
   const [data, setData] = useState<GenericDataItem[]>(transformData(exampleData));
+  const [expandAll, setExpandAll] = useState(false);
 
-  // Rekurzívne odstráni položku aj všetky jej potomky
   const handleDelete = (id: number) => {
     const deleteRecursive = (items: GenericDataItem[]): GenericDataItem[] => {
       return items
@@ -52,11 +48,23 @@ const Table: React.FC = () => {
     setData((prevData) => deleteRecursive(prevData));
   };
 
+  const toggleExpandAll = () => {
+    setExpandAll((prev) => !prev);
+  };
+
   return (
     <table className="custom-table">
       <thead>
         <tr>
-          <th></th>
+          <th>
+            <button
+              className="expand-collapse-btn"
+              onClick={toggleExpandAll}
+              title={expandAll ? "Collapse All" : "Expand All"}
+            >
+              {expandAll ? "▲" : "▼"}
+            </button>
+          </th>
           <th>ID</th>
           <th>Name</th>
           <th>Gender</th>
@@ -71,13 +79,19 @@ const Table: React.FC = () => {
         </tr>
       </thead>
       <tbody>
-          {data.map((item: GenericDataItem, index: number) => (
-          <Row key={`${item.id}-0`} item={item} onDelete={handleDelete} depth={0} rowIndex={index}/>
+        {data.map((item, index) => (
+          <Row
+            key={`${item.id}-0`}
+            item={item}
+            onDelete={handleDelete}
+            depth={0}
+            rowIndex={index}
+            expandAll={expandAll}
+          />
         ))}
       </tbody>
     </table>
   );
 };
-
 
 export default Table;

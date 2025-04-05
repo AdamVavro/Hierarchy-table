@@ -1,8 +1,16 @@
+body {
+  background-color: #1e1e1e;
+}
+
 .custom-table {
   width: 100%;
   border-collapse: collapse;
   background-color: #222;
   color: white;
+}
+
+.custom-table thead {
+  color:black
 }
 
 .custom-table th, .custom-table td {
@@ -44,18 +52,20 @@
   background-color: #00c5a0;
 }
 
-/* Odstráni border medzi stĺpcami hlavičky vo vnorených tabuľkách */
-.child-row table thead th {
-  border-right: none;
-  border-left: none;
-}
-
-/* Pre istotu vypneme aj border medzi bunkami v týchto tabuľkách */
-.child-row table {
+ .child-row table {
   border-collapse: collapse;
 }
 
-.child-row table th,
-.child-row table td {
+.expand-collapse-btn {
+  background-color: #00c5a0;
+  color: black;
   border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.3rem 0.5rem 0.2rem 0.5rem;
 }
+.expand-collapse-btn:hover {
+  color: white;
+}
+
+
