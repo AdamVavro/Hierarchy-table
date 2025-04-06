@@ -11,5 +11,4 @@ export interface RowProps {
   depth: number;
   rowIndex: number;
   expandAll: boolean;
-  relationName?: string;
 }

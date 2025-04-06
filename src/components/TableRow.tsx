@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { RowProps } from "../types";
 
-
 const Row: React.FC<RowProps> = ({ item, onDelete, depth, rowIndex, expandAll }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -9,30 +8,27 @@ const Row: React.FC<RowProps> = ({ item, onDelete, depth, rowIndex, expandAll })
     setExpanded(expandAll);
   }, [expandAll]);
 
-  const dataEntries = Object.entries(item.data);
   const hasChildren = item.children.length > 0;
+  const dataEntries = Object.entries(item.data);
   const rowClass = rowIndex % 2 === 0 ? "even-row" : "odd-row";
+
+  const getTooltipText = () => {
+    if (!hasChildren) return "";
+    if (item.relationName === "root") return "Show nemesis";
+    if (item.relationName === "has_nemesis") return "Show secret";
+    return "";
+  };
 
   return (
     <>
       <tr className={`parent-row ${rowClass}`}>
         <td
           onClick={() => hasChildren && setExpanded(!expanded)}
-          style={{ cursor: hasChildren ? "pointer" : "default" }}
           className="expand-td"
-          title={
-            hasChildren
-              ? item.relationName === "root"
-                ? "Show nemesis"
-                : item.relationName === "has_nemesis"
-                ? "Show secret"
-                : ""
-              : ""
-          }
+          style={{ cursor: hasChildren ? "pointer" : "default" }}
+          title={getTooltipText()}
         >
-           <span className="expand-arrow">
-            {hasChildren ? (expanded ? "▼" : "▶") : ""}
-          </span>
+          <span className="expand-arrow">{hasChildren ? (expanded ? "▼" : "▶") : ""}</span>
         </td>
         {dataEntries.map(([key, value]) => (
           <td key={key}>{value}</td>
@@ -62,7 +58,6 @@ const Row: React.FC<RowProps> = ({ item, onDelete, depth, rowIndex, expandAll })
                     depth={depth + 1}
                     rowIndex={rowIndex}
                     expandAll={expandAll}
-                    relationName={child.relationName}
                   />
                 ))}
               </tbody>
